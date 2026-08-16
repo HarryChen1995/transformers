@@ -1,1 +1,4 @@
 torch>=2.0
+
+# for cuda enable
+#torch>=2.0  --index-url https://download.pytorch.org/whl/cu121 
