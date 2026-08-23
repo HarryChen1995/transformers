@@ -1,5 +1,20 @@
-torch>=2.0
+# Core (works on CPU, Apple Silicon MPS, and CUDA)
+torch>=2.4          # 2.4+ for torch.amp.GradScaler and torch.nn.attention.sdpa_kernel
+numpy>=1.24
 
-# for cuda enable
-#--extra-index-url https://download.pytorch.org/whl/cu121
-#torch==2.5.1+cu121
+# Notebooks + plots
+jupyterlab>=4.0
+matplotlib>=3.7
+ipywidgets>=8.0        # nicer progress output in notebooks (optional)
+
+# Optional, only used where a notebook says "if available":
+# tiktoken>=0.5        # notebook 06: compare your BPE against GPT-2's
+# transformers>=4.40   # notebook 11: compare against a real pretrained encoder
+# datasets>=2.18       # bring your own larger corpus
+
+# ---------------------------------------------------------------------------
+# CUDA desktop (run this INSTEAD of the plain `torch` line above):
+#   pip install --index-url https://download.pytorch.org/whl/cu124 torch
+# Check which wheel you need at https://pytorch.org/get-started/locally/
+# Verify with:  python -c "import torch; print(torch.cuda.is_available())"
+# ---------------------------------------------------------------------------

@@ -5,3 +5,7 @@ venv/
 *.pt
 *.pth
 .DS_Store
+data/
+checkpoints/
+.ipynb_checkpoints/
+runs/
