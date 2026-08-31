@@ -9,3 +9,4 @@ data/
 checkpoints/
 .ipynb_checkpoints/
 runs/
+jupyter.log
