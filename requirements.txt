@@ -14,7 +14,8 @@ ipywidgets>=8.0        # nicer progress output in notebooks (optional)
 
 # ---------------------------------------------------------------------------
 # CUDA desktop (run this INSTEAD of the plain `torch` line above):
-#   pip install --index-url https://download.pytorch.org/whl/cu124 torch
+#   pip install --index-url https://download.pytorch.org/whl/cu126 torch
+# (cu126: newest build that still includes sm_60 kernels for the Tesla P100)
 # Check which wheel you need at https://pytorch.org/get-started/locally/
 # Verify with:  python -c "import torch; print(torch.cuda.is_available())"
 # ---------------------------------------------------------------------------
