@@ -198,7 +198,11 @@ def get_batch(batch_size, block_size, device):
 # ---------------------------------------------------------------------------
 
 def main():
-    device = "cuda" if torch.cuda.is_available() else "cpu"
+    device = "cpu"
+    if torch.cuda.is_available():
+        # prefer the Tesla P100 over any other card in the box
+        names = [torch.cuda.get_device_name(i) for i in range(torch.cuda.device_count())]
+        device = f"cuda:{next((i for i, n in enumerate(names) if 'P100' in n), 0)}"
     torch.manual_seed(0)
 
     cfg = Config()

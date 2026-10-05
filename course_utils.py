@@ -47,12 +47,28 @@ def set_seed(seed: int = 1337) -> None:
         torch.cuda.manual_seed_all(seed)
 
 
+# On a multi-GPU box, train on the card whose name contains this string.
+# Override with e.g. COURSE_GPU="RTX 2060"; falls back to cuda:0 if no match.
+PREFERRED_GPU = os.environ.get("COURSE_GPU", "P100")
+
+
+def preferred_cuda_index() -> int:
+    """Index of the GPU matching PREFERRED_GPU, else 0."""
+    for i in range(torch.cuda.device_count()):
+        if PREFERRED_GPU.lower() in torch.cuda.get_device_name(i).lower():
+            return i
+    return 0
+
+
 def get_device(prefer: str | None = None) -> torch.device:
-    """Pick the best available device: CUDA > Apple MPS > CPU."""
+    """Pick the best available device: CUDA (the P100) > Apple MPS > CPU."""
     if prefer:
         return torch.device(prefer)
     if torch.cuda.is_available():
-        return torch.device("cuda")
+        # set_device too, so bare "cuda", autocast and synchronize() follow it
+        idx = preferred_cuda_index()
+        torch.cuda.set_device(idx)
+        return torch.device("cuda", idx)
     if getattr(torch.backends, "mps", None) and torch.backends.mps.is_available():
         return torch.device("mps")
     return torch.device("cpu")
@@ -61,7 +77,8 @@ def get_device(prefer: str | None = None) -> torch.device:
 def describe_device(device: torch.device | str) -> str:
     device = torch.device(device)
     if device.type == "cuda":
-        return f"cuda ({torch.cuda.get_device_name(0)})"
+        idx = device.index if device.index is not None else torch.cuda.current_device()
+        return f"cuda:{idx} ({torch.cuda.get_device_name(idx)})"
     if device.type == "mps":
         return "mps (Apple Silicon GPU)"
     return "cpu"

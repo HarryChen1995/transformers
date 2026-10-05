@@ -101,6 +101,11 @@ def main(argv=None) -> int:
     print(f"params: {cu.human(cu.count_params(model))}")
 
     raw_model = model
+    if args.compile and device.type == "cuda" \
+            and torch.cuda.get_device_capability(device) < (7, 0):
+        # Triton (the compile backend) needs sm_70+; the P100 is sm_60
+        print("--compile ignored: torch.compile needs compute capability >= 7.0")
+        args.compile = False
     if args.compile:
         print("compiling (first step will be slow) ...")
         model = torch.compile(model)
@@ -110,7 +115,7 @@ def main(argv=None) -> int:
 
     # bf16 needs no GradScaler; fp16 does. MPS/CPU: skip autocast entirely.
     use_amp = args.amp and device.type == "cuda"
-    amp_dtype = torch.bfloat16 if (use_amp and torch.cuda.is_bf16_supported()) \
+    amp_dtype = torch.bfloat16 if (use_amp and torch.cuda.is_bf16_supported(including_emulation=False)) \
         else torch.float16
     scaler = torch.amp.GradScaler(enabled=use_amp and amp_dtype is torch.float16)
     if args.amp and not use_amp:

@@ -90,11 +90,19 @@ thing notebook 05 makes fully transparent.
 ## Running on a GPU box over ssh
 
 The notebooks pick the best device automatically (`cuda` > `mps` > `cpu`), so
-nothing needs changing. For long runs, use the script instead of a notebook:
+nothing needs changing. On a box with several GPUs they use the **Tesla P100**
+(PyTorch would otherwise default to the newest card as `cuda:0`); set
+`COURSE_GPU="RTX 2060"` (any substring of the device name) to pick another.
+
+The P100 is Pascal (sm_60): no bf16, so `--amp` runs fp16 with a `GradScaler`,
+and `torch.compile` (Triton needs sm_70+) is skipped with a warning.
+
+For long runs, use the script instead of a notebook:
 
 ```bash
-# install the CUDA build there (see the note in requirements.txt)
-pip install --index-url https://download.pytorch.org/whl/cu124 torch
+# install the CUDA build there (see the note in requirements.txt);
+# cu126 is the newest wheel that still ships sm_60 kernels for the P100
+pip install --index-url https://download.pytorch.org/whl/cu126 torch
 
 rsync -av --exclude data --exclude checkpoints ./ gpu-box:~/transformer/
 ssh gpu-box
